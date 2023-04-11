@@ -32,4 +32,4 @@ CD to root of project
 Add package 
 Microsoft.EntityFrameworkCore.Design to EF project
 
-dotnet ef dbcontext scaffold "Data Source=3.80.81.224:1521/SPRING2023PDB;User ID=UD_BRAGUI;Password=UD_BRAGUI" Oracle.EntityFrameworkCore --output-dir Models --context-dir Data --project "DOOR.EF" --context "DOOROracleContext" --data-annotations --force
+dotnet ef dbcontext scaffold "Data Source=3.80.81.224:1521/SPRING2023PDB;User ID=UD_JBEANS;Password=UD_JBEANS" Oracle.EntityFrameworkCore --output-dir Models --context-dir Data --project "DOOR.EF" --context "DOOROracleContext" --data-annotations --force

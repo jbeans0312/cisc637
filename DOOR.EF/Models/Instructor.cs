@@ -6,16 +6,19 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DOOR.EF.Models;
 
-[PrimaryKey("StudentId", "SchoolId")]
-[Table("STUDENT")]
-[Index("StudentId", Name = "STU_PK", IsUnique = true)]
-[Index("Zip", Name = "STU_ZIP_FK_I")]
-public partial class Student
+[PrimaryKey("SchoolId", "InstructorId")]
+[Table("INSTRUCTOR")]
+public partial class Instructor
 {
     [Key]
-    [Column("STUDENT_ID")]
+    [Column("SCHOOL_ID")]
     [Precision(8)]
-    public int StudentId { get; set; }
+    public int SchoolId { get; set; }
+
+    [Key]
+    [Column("INSTRUCTOR_ID")]
+    [Precision(8)]
+    public int InstructorId { get; set; }
 
     [Column("SALUTATION")]
     [StringLength(5)]
@@ -25,7 +28,7 @@ public partial class Student
     [Column("FIRST_NAME")]
     [StringLength(25)]
     [Unicode(false)]
-    public string? FirstName { get; set; }
+    public string FirstName { get; set; } = null!;
 
     [Column("LAST_NAME")]
     [StringLength(25)]
@@ -35,7 +38,7 @@ public partial class Student
     [Column("STREET_ADDRESS")]
     [StringLength(50)]
     [Unicode(false)]
-    public string? StreetAddress { get; set; }
+    public string StreetAddress { get; set; } = null!;
 
     [Column("ZIP")]
     [StringLength(5)]
@@ -46,14 +49,6 @@ public partial class Student
     [StringLength(15)]
     [Unicode(false)]
     public string? Phone { get; set; }
-
-    [Column("EMPLOYER")]
-    [StringLength(50)]
-    [Unicode(false)]
-    public string? Employer { get; set; }
-
-    [Column("REGISTRATION_DATE", TypeName = "DATE")]
-    public DateTime RegistrationDate { get; set; }
 
     [Column("CREATED_BY")]
     [StringLength(30)]
@@ -71,15 +66,14 @@ public partial class Student
     [Column("MODIFIED_DATE", TypeName = "DATE")]
     public DateTime ModifiedDate { get; set; }
 
-    [Key]
-    [Column("SCHOOL_ID")]
-    [Precision(8)]
-    public int SchoolId { get; set; }
-
-    [InverseProperty("SNavigation")]
-    public virtual ICollection<Enrollment> Enrollments { get; set; } = new List<Enrollment>();
-
     [ForeignKey("SchoolId")]
-    [InverseProperty("Students")]
+    [InverseProperty("Instructors")]
     public virtual School School { get; set; } = null!;
+
+    [InverseProperty("Instructor")]
+    public virtual ICollection<Section> Sections { get; set; } = new List<Section>();
+
+    [ForeignKey("Zip")]
+    [InverseProperty("Instructors")]
+    public virtual Zipcode ZipNavigation { get; set; } = null!;
 }
