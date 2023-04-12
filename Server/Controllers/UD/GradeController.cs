@@ -27,14 +27,15 @@ using System.Numerics;
 using DOOR.Shared.DTO;
 using DOOR.Shared.Utils;
 using DOOR.Server.Controllers.Common;
+using static System.Collections.Specialized.BitVector32;
 
 namespace CSBA6.Server.Controllers.app
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class CourseController : BaseController
+    public class GradeController : BaseController
     {
-        public CourseController(DOOROracleContext _DBcontext,
+        public GradeController(DOOROracleContext _DBcontext,
             OraTransMsgs _OraTransMsgs)
             : base(_DBcontext, _OraTransMsgs)
 
@@ -43,73 +44,83 @@ namespace CSBA6.Server.Controllers.app
 
 
         [HttpGet]
-        [Route("GetCourse")]
-        public async Task<IActionResult> GetCourse()
+        [Route("GetGrade")]
+        public async Task<IActionResult> GetGrade()
         {
-            List<CourseDTO> lst = await _context.Courses
-                .Select(sp => new CourseDTO
+            List<GradeDTO> lst = await _context.Grades
+                .Select(sp => new GradeDTO
                 {
-                    Cost = sp.Cost,
-                    CourseNo = sp.CourseNo,
+                    SchoolId = sp.SchoolId,
+                    StudentId = sp.StudentId,
+                    SectionId = sp.SectionId,
+                    GradeTypeCode = sp.GradeTypeCode,
+                    GradeCodeOccurrence = sp.GradeCodeOccurrence,
+                    NumericGrade = sp.NumericGrade,
+                    Comments = sp.Comments,
                     CreatedBy = sp.CreatedBy,
                     CreatedDate = sp.CreatedDate,
-                    Description = sp.Description,
                     ModifiedBy = sp.ModifiedBy,
-                    ModifiedDate = sp.ModifiedDate,
-                    Prerequisite = sp.Prerequisite,
-                    SchoolId = sp.SchoolId,
-                    PrerequisiteSchoolId = sp.PrerequisiteSchoolId
+                    ModifiedDate = sp.ModifiedDate
                 }).ToListAsync();
             return Ok(lst);
         }
 
 
         [HttpGet]
-        [Route("GetCourse/{_SchoolId}/{_CourseNo}")]
-        public async Task<IActionResult> GetCourse(int _SchoolId, int _CourseNo)
+        [Route("GetGrade/{_SchoolId}/{_StudentId}/{_SectionId}/{_GradeTypeCode}/{_GradeCodeOccurrence}")]
+        public async Task<IActionResult> GetGrade(int _SchoolId, int _StudentId, int _SectionId, string _GradeTypeCode, int _GradeCodeOccurrence)
         {
-            CourseDTO? lst = await _context.Courses
+            GradeDTO? lst = await _context.Grades
                 .Where(x => x.SchoolId == _SchoolId)
-                .Where(x => x.CourseNo == _CourseNo)
-                .Select(sp => new CourseDTO
+                .Where(x => x.StudentId == _StudentId)
+                .Where(x => x.SectionId == _SectionId)
+                .Where(x => x.GradeTypeCode == _GradeTypeCode)
+                .Where(x => x.GradeCodeOccurrence == _GradeCodeOccurrence)
+                .Select(sp => new GradeDTO
                 {
-                    Cost = sp.Cost,
-                    CourseNo = sp.CourseNo,
+                    SchoolId = sp.SchoolId,
+                    StudentId = sp.StudentId,
+                    SectionId = sp.SectionId,
+                    GradeTypeCode = sp.GradeTypeCode,
+                    GradeCodeOccurrence = sp.GradeCodeOccurrence,
+                    NumericGrade = sp.NumericGrade,
+                    Comments = sp.Comments,
                     CreatedBy = sp.CreatedBy,
                     CreatedDate = sp.CreatedDate,
-                    Description = sp.Description,
                     ModifiedBy = sp.ModifiedBy,
-                    ModifiedDate = sp.ModifiedDate,
-                    Prerequisite = sp.Prerequisite,
-                    SchoolId = sp.SchoolId,
-                    PrerequisiteSchoolId = sp.PrerequisiteSchoolId
+                    ModifiedDate = sp.ModifiedDate
                 }).FirstOrDefaultAsync();
             return Ok(lst);
         }
 
 
         [HttpPost]
-        [Route("PostCourse")]
-        public async Task<IActionResult> PostCourse([FromBody] CourseDTO _CourseDTO)
+        [Route("PostGrade")]
+        public async Task<IActionResult> PostGrade([FromBody] GradeDTO _GradeDTO)
         {
             try
             {
-                Course? c = await _context.Courses
-                    .Where(x => x.SchoolId == _CourseDTO.SchoolId)
-                    .Where(x => x.CourseNo == _CourseDTO.CourseNo)
+                Grade? g = await _context.Grades
+                    .Where(x => x.SchoolId == _GradeDTO.SchoolId)
+                    .Where(x => x.StudentId == _GradeDTO.StudentId)
+                    .Where(x => x.SectionId == _GradeDTO.SectionId)
+                    .Where(x => x.GradeTypeCode == _GradeDTO.GradeTypeCode)
+                    .Where(x => x.GradeCodeOccurrence == _GradeDTO.GradeCodeOccurrence)
                     .FirstOrDefaultAsync();
 
-                if (c == null)
+                if (g == null)
                 {
-                    c = new Course
+                    g = new Grade
                     {
-                        Cost = _CourseDTO.Cost,
-                        Description = _CourseDTO.Description,
-                        Prerequisite = _CourseDTO.Prerequisite,
-                        SchoolId = _CourseDTO.SchoolId,
-                        PrerequisiteSchoolId = _CourseDTO.PrerequisiteSchoolId
+                        SchoolId = _GradeDTO.SchoolId,
+                        StudentId = _GradeDTO.StudentId,
+                        SectionId = _GradeDTO.SectionId,
+                        GradeTypeCode = _GradeDTO.GradeTypeCode,
+                        GradeCodeOccurrence = _GradeDTO.GradeCodeOccurrence,
+                        NumericGrade = _GradeDTO.NumericGrade,
+                        Comments = _GradeDTO.Comments,
                     };
-                    _context.Courses.Add(c);
+                    _context.Grades.Add(g);
                     await _context.SaveChangesAsync();
                 }
             }
@@ -132,25 +143,30 @@ namespace CSBA6.Server.Controllers.app
         }
 
         [HttpPut]
-        [Route("PutCourse")]
-        public async Task<IActionResult> PutCourse([FromBody] CourseDTO _CourseDTO)
+        [Route("PutGrade")]
+        public async Task<IActionResult> PutGrade([FromBody] GradeDTO _GradeDTO)
         {
             try
             {
-                Course? c = await _context.Courses
-                    .Where(x => x.SchoolId == _CourseDTO.SchoolId)
-                    .Where(x => x.CourseNo == _CourseDTO.CourseNo)
+                Grade? g = await _context.Grades
+                    .Where(x => x.SchoolId == _GradeDTO.SchoolId)
+                    .Where(x => x.StudentId == _GradeDTO.StudentId)
+                    .Where(x => x.SectionId == _GradeDTO.SectionId)
+                    .Where(x => x.GradeTypeCode == _GradeDTO.GradeTypeCode)
+                    .Where(x => x.GradeCodeOccurrence == _GradeDTO.GradeCodeOccurrence)
                     .FirstOrDefaultAsync();
 
-                if (c != null)
+                if (g != null)
                 {
-                    c.Description = _CourseDTO.Description;
-                    c.Cost = _CourseDTO.Cost;
-                    c.Prerequisite = _CourseDTO.Prerequisite;
-                    c.SchoolId = _CourseDTO.SchoolId;
-                    c.PrerequisiteSchoolId = _CourseDTO.PrerequisiteSchoolId;
+                    g.SchoolId = _GradeDTO.SchoolId;
+                    g.StudentId = _GradeDTO.StudentId;
+                    g.SectionId = _GradeDTO.SectionId;
+                    g.GradeTypeCode = _GradeDTO.GradeTypeCode;
+                    g.GradeCodeOccurrence = _GradeDTO.GradeCodeOccurrence;
+                    g.NumericGrade = _GradeDTO.NumericGrade;
+                    g.Comments = _GradeDTO.Comments;
 
-                    _context.Courses.Update(c);
+                    _context.Grades.Update(g);
                     await _context.SaveChangesAsync();
                 }
             }
@@ -174,19 +190,22 @@ namespace CSBA6.Server.Controllers.app
 
 
         [HttpDelete]
-        [Route("DeleteCourse/{_SchoolId}/{_CourseNo}")]
-        public async Task<IActionResult> DeleteCourse(int _SchoolId, int _CourseNo)
+        [Route("DeleteGrade/{_SchoolId}/{_StudentId}/{_SectionId}/{_GradeTypeCode}/{_GradeCodeOccurrence}")]
+        public async Task<IActionResult> DeleteGrade(int _SchoolId, int _StudentId, int _SectionId, string _GradeTypeCode, int _GradeCodeOccurrence)
         {
             try
             {
-                Course? c = await _context.Courses
+                Grade? g = await _context.Grades
                     .Where(x => x.SchoolId == _SchoolId)
-                    .Where(x => x.CourseNo == _CourseNo)
+                    .Where(x => x.StudentId == _StudentId)
+                    .Where(x => x.SectionId == _SectionId)
+                    .Where(x => x.GradeTypeCode == _GradeTypeCode)
+                    .Where(x => x.GradeCodeOccurrence == _GradeCodeOccurrence)
                     .FirstOrDefaultAsync();
 
-                if (c != null)
+                if (g != null)
                 {
-                    _context.Courses.Remove(c);
+                    _context.Grades.Remove(g);
                     await _context.SaveChangesAsync();
                 }
             }

@@ -7,25 +7,24 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using DOOR.Shared.DTO;
-
 namespace DOOR.Shared.DTO
 {
-    public class CourseDTO
-    {
-        public int CourseNo { get; set; }
+	public class GradeTypeDTO
+	{
+		public int SchoolId { get; set; }
+		[StringLength(2)]
+		public string GradeTypeCode { get; set; } = null!;
+
         [StringLength(50)]
         public string Description { get; set; } = null!;
-        public decimal? Cost { get; set; }
-        public int? Prerequisite { get; set; }
+
         [StringLength(30)]
         public string CreatedBy { get; set; } = null!;
         public DateTime CreatedDate { get; set; }
-        [StringLength(30)]
 
+        [StringLength(30)]
         public string ModifiedBy { get; set; } = null!;
         public DateTime ModifiedDate { get; set; }
-
-        public int SchoolId { get; set; }
-        public int? PrerequisiteSchoolId { get; set; }
     }
 }
+
